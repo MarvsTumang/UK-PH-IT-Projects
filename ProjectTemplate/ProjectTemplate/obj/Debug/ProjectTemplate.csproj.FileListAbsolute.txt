@@ -1,0 +1,10 @@
+c:\users\mtumang\documents\visual studio 2015\Projects\ProjectTemplate\ProjectTemplate\bin\Debug\ProjectTemplate.exe.config
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\bin\Debug\ProjectTemplate.exe
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\bin\Debug\ProjectTemplate.pdb
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.MainForm.resources
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.Properties.Resources.resources
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.csproj.GenerateResource.Cache
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.exe
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.pdb
+C:\Users\mtumang\Documents\Visual Studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.csproj.ResolveComReference.cache
+C:\Users\mtumang\documents\visual studio 2015\Projects\ProjectTemplate\ProjectTemplate\obj\Debug\ProjectTemplate.csprojResolveAssemblyReference.cache
