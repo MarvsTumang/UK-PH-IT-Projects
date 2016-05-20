@@ -114,7 +114,7 @@ namespace ArrowGlobal
 
             FormControl.ViewData(table);
             
-            string excelFileName = textFile.Remove(textFile.LastIndexOf('.'), 4) + " - To Load.xls";
+            //string excelFileName = textFile.Remove(textFile.LastIndexOf('.'), 4) + " - To Load.xls";
 
             //ExcelFile.SaveExcel(table, excelFileName);
 
