@@ -173,6 +173,11 @@ namespace ArrowGlobal
             return columnName;
         }
 
+        //public static Excel.Worksheet InsertColumn<T>(Excel.Worksheet xlWs, string columnName, List<T> values)
+        //{
+
+        //}
+
         public static void SaveExcel(DataTable dataTable, string fileName)
         {
             FormControl.SetStatus("Saving Excel File...");
@@ -334,6 +339,26 @@ namespace ArrowGlobal
             }
 
             return dataTable;
+        }
+
+        public static void SaveAsText(DataTable table, string fileName, string del = "|")
+        {
+            double subPerc = 0.00;
+            List<string> lines = new List<string>();
+
+            mainPercStep = FormControl.MaxPercSubProc / table.Rows.Count;
+
+            lines.Add(String.Join(del, table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray()));
+
+            foreach (DataRow row in table.Rows)
+            {
+                subPerc = (table.Rows.IndexOf(row) + 1) / table.Rows.Count * 100.00;
+                FormControl.SetSubProgress(subPerc);
+                FormControl.SetMainProgress(mainPercStep);
+                lines.Add(String.Join(del, row.ItemArray));
+            }
+
+            File.WriteAllLines(fileName, lines);
         }
 
         //Insert additional column/s to existing DataTable
@@ -522,45 +547,76 @@ namespace ArrowGlobal
 
         public static void SetStatus(string status)
         {
-            MainForm.tsStatus.GetCurrentParent().Invoke(new Action(() =>
+            try
             {
-                MainForm.tsStatus.Text = status;
-            }));
+                MainForm.tsStatus.GetCurrentParent().Invoke(new Action(() =>
+                {
+                    MainForm.tsStatus.Text = status;
+                    MainForm.tsStatus.Invalidate();
+                }));
+            }
+            catch
+            {
+                
+            }
         }
 
         public static void SetSubProgress(double percent)
         {
-            //Thread.Sleep(50);
-
-            MainForm.pbarSub.Invoke(new Action(() =>
+            //Thread.Sleep(10);
+            try
             {
-                MainForm.pbarSub.Value = (int) percent;
-            }));
+                MainForm.pbarSub.Invoke(new Action(() =>
+                {
+                    MainForm.pbarSub.Value = (int)percent;
+                    MainForm.pbarSub.Invalidate();
+                }));
 
-            if (percent == 100)
+                if (percent == 100)
+                {
+                    percent = 0;
+                }
+            }
+            catch (Exception ex)
             {
-                percent = 0;
+                throw ex;
             }
         }
 
         public static void SetMainProgress(double percent)
         {
-            //Thread.Sleep(50);
+            //Thread.Sleep(10);
             mainProgress += percent;
 
-            MainForm.pbarMain.Invoke(new Action(() =>
+            try
             {
-                MainForm.pbarMain.Value = (int)Math.Round(mainProgress, MidpointRounding.AwayFromZero);
-            }));
+                MainForm.pbarMain.Invoke(new Action(() =>
+                {
+                    MainForm.pbarMain.Value = (int)Math.Round(mainProgress, MidpointRounding.AwayFromZero);
+                    MainForm.pbarMain.Invalidate();
+                }));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public static void ViewData(DataTable table)
         {
-            MainForm.dataGridView.Invoke(new Action(() =>
+            try
             {
-                MainForm.dataGridView.DataSource = null;
-                MainForm.dataGridView.DataSource = table;
-            }));
+                MainForm.dataGridView.Invoke(new Action(() =>
+                {
+                    MainForm.dataGridView.DataSource = null;
+                    MainForm.dataGridView.DataSource = table;
+                    MainForm.dataGridView.Invalidate();
+                }));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
     #endregion

@@ -40,7 +40,7 @@ namespace ArrowGlobal
             DataTable table;
             List<PhoneNumber> pNumbers;
             List<CCLN> cclns;
-            FormControl.MaxPercSubProc = 100.00 / 5;
+            FormControl.MaxPercSubProc = 100.00 / 6;
 
             string textFile = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Text File Template.txt";
             string teleAppend = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Trace Tele-Appends - Template.xls";
@@ -86,7 +86,7 @@ namespace ArrowGlobal
 
                 string arrowKey = row["arrowKey"].ToString().Trim().ToLower();
                 PhoneNumber pNum = pNumbers.Find(p => p.ArrowKey.Trim().ToLower() == arrowKey);
-                
+
                 if (pNum != null)
                 {
                     row["NumberMobile1"] = PadLeft(pNum.Mobile, 11);
@@ -115,8 +115,10 @@ namespace ArrowGlobal
             FormControl.ViewData(table);
             
             string excelFileName = textFile.Remove(textFile.LastIndexOf('.'), 4) + " - To Load.xls";
-
+            
             ExcelFile.SaveExcel(table, excelFileName);
+
+            Table.SaveAsText(table, excelFileName.Replace("xls", "csv"));
 
             FormControl.SetStatus("Done!");
 
