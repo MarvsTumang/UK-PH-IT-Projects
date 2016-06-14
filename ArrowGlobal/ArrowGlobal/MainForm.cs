@@ -88,7 +88,7 @@ namespace ArrowGlobal
 
             table = Table.FromTextFile(textFile, customColumns: customColumns);
 
-            //FormControl.ViewData(table);
+            FormControl.ViewData(table);
 
             int[] columns = new int[] { 1, 2, 4, 5 };
             pNumbers = ExcelFile.ToList<PhoneNumber>(teleAppend, columns);
