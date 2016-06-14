@@ -54,7 +54,7 @@ namespace ArrowGlobal
                 }
             }
             
-            //Thread.Sleep(3000);
+            Thread.Sleep(3000);
 
             //Environment.Exit(0);
         }
