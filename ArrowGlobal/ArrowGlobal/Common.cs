@@ -157,6 +157,28 @@ namespace ArrowGlobal
             }
         }
 
+        public static string[] GetColumnData(string excelFilePath, int column, int headerRow = 1)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
+            Excel.Application xlApp = null;
+            Excel.Workbook xlWb = null;
+
+            try
+            {
+                xlApp = new Excel.Application();
+                xlWb = xlApp.Workbooks.Open(excelFilePath);
+                Excel.Worksheet xlWs = xlWb.Worksheets[1];
+                Excel.Range xlRange = xlWs.UsedRange.Columns[column];
+
+                Array arr = xlRange.Cells.Value;
+                return arr.OfType<object>().Select(o => o.ToString()).ToArray();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         private static string GetExcelColumnName(int columnNumber)
         {
             int dividend = columnNumber;
@@ -172,11 +194,6 @@ namespace ArrowGlobal
 
             return columnName;
         }
-
-        //public static Excel.Worksheet InsertColumn<T>(Excel.Worksheet xlWs, string columnName, List<T> values)
-        //{
-
-        //}
 
         public static void SaveExcel(DataTable dataTable, string fileName)
         {
@@ -341,7 +358,7 @@ namespace ArrowGlobal
             return dataTable;
         }
 
-        public static void SaveAsText(DataTable table, string fileName, string del = "|")
+        public static void SaveAsCsv(DataTable table, string fileName, string del = "|")
         {
             double subPerc = 0.00;
             List<string> lines = new List<string>();
@@ -547,39 +564,37 @@ namespace ArrowGlobal
 
         public static void SetStatus(string status)
         {
-            try
+            if (MainForm.tsStatus.GetCurrentParent().InvokeRequired)
             {
                 MainForm.tsStatus.GetCurrentParent().Invoke(new Action(() =>
                 {
                     MainForm.tsStatus.Text = status;
-                    MainForm.tsStatus.Invalidate();
                 }));
             }
-            catch
+            else
             {
-                
+                MainForm.tsStatus.Text = status;
             }
         }
 
         public static void SetSubProgress(double percent)
         {
             //Thread.Sleep(10);
-            try
+            if (MainForm.pbarSub.InvokeRequired)
             {
                 MainForm.pbarSub.Invoke(new Action(() =>
                 {
                     MainForm.pbarSub.Value = (int)percent;
-                    MainForm.pbarSub.Invalidate();
                 }));
-
-                if (percent == 100)
-                {
-                    percent = 0;
-                }
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
+                MainForm.pbarSub.Value = (int)percent;
+            }
+
+            if (percent == 100)
+            {
+                percent = 0;
             }
         }
 
@@ -588,38 +603,55 @@ namespace ArrowGlobal
             //Thread.Sleep(10);
             mainProgress += percent;
 
-            try
+            if (MainForm.pbarMain.InvokeRequired)
             {
                 MainForm.pbarMain.Invoke(new Action(() =>
                 {
                     MainForm.pbarMain.Value = (int)Math.Round(mainProgress, MidpointRounding.AwayFromZero);
-                    MainForm.pbarMain.Invalidate();
                 }));
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
+                MainForm.pbarMain.Value = (int)Math.Round(mainProgress, MidpointRounding.AwayFromZero);
             }
         }
 
         public static void ViewData(DataTable table)
         {
-            try
+            if (MainForm.dataGridView.InvokeRequired)
             {
                 MainForm.dataGridView.Invoke(new Action(() =>
                 {
                     MainForm.dataGridView.DataSource = null;
                     MainForm.dataGridView.DataSource = table;
-                    MainForm.dataGridView.Invalidate();
                 }));
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
+                MainForm.dataGridView.DataSource = null;
+                MainForm.dataGridView.DataSource = table;
             }
         }
     }
     #endregion
+
+    public static class Config
+    {
+        public static string Get(string key)
+        {
+            return ConfigurationManager.AppSettings[key];
+        }
+
+        public static void Set(string key, string value)
+        {
+            Configuration configuration =
+                ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            configuration.AppSettings.Settings[key].Value = value;
+            configuration.Save();
+            ConfigurationManager.RefreshSection("appSettings");
+        }
+
+    }
 
     #region AES256 Encryption for local applications
     public static class AES256

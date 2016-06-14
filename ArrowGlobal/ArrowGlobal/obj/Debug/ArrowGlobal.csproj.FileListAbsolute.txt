@@ -8,3 +8,13 @@ c:\users\mtumang\documents\visual studio 2015\Projects\ArrowGlobal\ArrowGlobal\o
 c:\users\mtumang\documents\visual studio 2015\Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.csproj.GenerateResource.Cache
 c:\users\mtumang\documents\visual studio 2015\Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.exe
 c:\users\mtumang\documents\visual studio 2015\Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.pdb
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\bin\Debug\ArrowGlobal.exe.config
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.csproj.ResolveComReference.cache
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.exe
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.pdb
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\bin\Debug\ArrowGlobal.exe
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\bin\Debug\ArrowGlobal.pdb
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.MainForm.resources
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.Properties.Resources.resources
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.csproj.GenerateResource.Cache
+C:\Users\mtumang\Documents\UK-PH-IT-Projects\ArrowGlobal\ArrowGlobal\obj\Debug\ArrowGlobal.csprojResolveAssemblyReference.cache

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,6 +19,7 @@ namespace ArrowGlobal
         public static CustomProgressBar pbarSub;
         public static ToolStripStatusLabel tsStatus;
         public static DataGridView dataGridView;
+        private static string cclnFile;
 
         public MainForm()
         {
@@ -26,26 +28,51 @@ namespace ArrowGlobal
             pbarSub = cpbSub;
             tsStatus = tsLabel;
             dataGridView = dgView;
+            cclnFile = Config.Get("CCLN");
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Thread thread = new Thread(new ThreadStart(Process));
+            Thread thread = new Thread(new ThreadStart(MainProcess));
             thread.Start();
         }
 
-        private void Process()
+        private void MainProcess()
+        {
+            string[] pFolders = Directory.GetDirectories(Config.Get("ArrowFolder"))
+                .Where(d => Regex.IsMatch(Path.GetFileName(d), @"^(?i)P\d{4}$")).ToArray();
+
+            FormControl.MaxPercSubProc = 100.00 / (pFolders.Length * 12);
+
+            foreach (string dir in pFolders)
+            {
+                string[] subFolders = Directory.GetDirectories(dir);
+
+                foreach (string folder in subFolders)
+                {
+                    ProcessFiles(folder);
+                }
+            }
+            
+            //Thread.Sleep(3000);
+
+            //Environment.Exit(0);
+        }
+
+        private void ProcessFiles(string directory)
         {
             Thread.Sleep(1000);
             DataTable table;
             List<PhoneNumber> pNumbers;
             List<CCLN> cclns;
-            FormControl.MaxPercSubProc = 100.00 / 6;
 
-            string textFile = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Text File Template.txt";
-            string teleAppend = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Trace Tele-Appends - Template.xls";
-            string cclnFile = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\CCL_Number_Mapping.xlsx";
+            //string textFile = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Text File Template.txt";
+            //string teleAppend = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Trace Tele-Appends - Template.xls";
+            //string cclnFile = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\CCL_Number_Mapping.xlsx";
 
+            string textFile = Directory.GetFiles(directory.ToLower(), "*.txt").First();
+            string teleAppend = Directory.GetFiles(directory).Where(f => Path.GetFileName(f).ToLower().Contains("tele-append")).First();
+            
             string[] customColumns = new string[]
             {
                 "ArrowKey||txt|",
@@ -67,7 +94,7 @@ namespace ArrowGlobal
             pNumbers = ExcelFile.ToList<PhoneNumber>(teleAppend, columns);
 
             //string arrowKeys = String.Join(", ", pNumbers.AsEnumerable().Select(c => c.ArrowKey).ToArray());
-            
+
             columns = new int[] { 1, 2 };
             cclns = ExcelFile.ToList<CCLN>(cclnFile, columns);
 
@@ -113,18 +140,14 @@ namespace ArrowGlobal
             }
 
             FormControl.ViewData(table);
-            
+
             string excelFileName = textFile.Remove(textFile.LastIndexOf('.'), 4) + " - To Load.xls";
-            
+
             ExcelFile.SaveExcel(table, excelFileName);
 
-            Table.SaveAsText(table, excelFileName.Replace("xls", "csv"));
+            Table.SaveAsCsv(table, excelFileName.Replace("xls", "csv"));
 
             FormControl.SetStatus("Done!");
-
-            //Thread.Sleep(3000);
-
-            //Environment.Exit(0);
         }
 
         private string PadLeft(object obj, int totalWidth, char paddingChar = '0')
