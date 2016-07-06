@@ -91,7 +91,7 @@ namespace ArrowGlobal
                 FormControl.SetStatus("Reading Excel File...");
                 List<T> list = new List<T>();
                 PropertyInfo[] props = null;
-                PropertyInfo propInfo = null;
+                PropertyInfo prop = null;
                 xlApp = new Excel.Application();
                 xlWb = xlApp.Workbooks.Open(excelFilePath);
                 Excel.Worksheet xlWs = xlWb.Worksheets[1];
@@ -123,10 +123,10 @@ namespace ArrowGlobal
                         object value;
                         try
                         {
-                            propInfo = props[col];
-                            Type type = Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType;
+                            prop = props[col];
+                            Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
                             value = Convert.ChangeType(xlWs.Cells[headerRow + row, columns[col]].Value, type);
-                            propInfo.SetValue(obj, value, null);
+                            prop.SetValue(obj, value, null);
                         }
                         catch //(Exception ex)
                         {
@@ -169,33 +169,94 @@ namespace ArrowGlobal
                 xlWb = xlApp.Workbooks.Open(excelFilePath);
                 Excel.Worksheet xlWs = xlWb.Worksheets[1];
                 Excel.Range xlRange = xlWs.UsedRange.Columns[column];
-
                 Array arr = xlRange.Cells.Value;
-                return arr.OfType<object>().Select(o => o.ToString()).ToArray();
+                return arr.OfType<object>().Skip(headerRow).Select(o => o.ToString()).ToArray();
             }
             catch (Exception)
             {
                 return null;
             }
         }
+        
 
-        private static string GetExcelColumnName(int columnNumber)
+        public static bool InsertColumn<T>(string excelFilePath, List<T> values, int column = 0, int[] columns = null, int headerRow = 1) where T : class, new()
         {
-            int dividend = columnNumber;
-            string columnName = String.Empty;
-            int modulo;
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
+            PropertyInfo[] props = null;
+            Excel.Application xlApp = null;
+            Excel.Workbook xlWb = null;
+            Excel.Worksheet xlWs = null;
+            Excel.Range xlRange = null;
+            Excel.Range xlFind = null;
+            Excel.Range xlCell = null;
+            object key = null;
+            int row = 0;
+            int col = 0;
 
-            while (dividend > 0)
+            try
             {
-                modulo = (dividend - 1) % 26;
-                columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
-                dividend = (int)((dividend - modulo) / 26);
-            }
+                T obj = new T();
+                props = obj.GetType().GetProperties();
 
-            return columnName;
+                xlApp = new Excel.Application();
+                xlWb = xlApp.Workbooks.Open(excelFilePath);
+                xlWs = xlWb.Worksheets[1];
+                xlRange = xlWs.Columns[1];
+                
+                foreach (T value in values)
+                {
+                    key = props[0].GetValue(value);
+
+                    if (row == 0)
+                    {
+                        if (column != 0)
+                        {
+                            columns = new int[] { column };
+                        }
+                        else if (columns == null && columns.Length == 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    for (int i = 0; i < columns.Length; i++)
+                    {
+                        col = columns[i];
+
+                        if (values.IndexOf(value) == 0)
+                        { 
+                            xlWs.Columns[col].Insert();
+                            string colName = props[i + 1].Name;
+                            xlCell = xlWs.Cells[headerRow, col];
+                            xlCell.Value = colName;
+                        }
+
+                        xlFind = xlRange.Find(key, Type.Missing, Excel.XlFindLookIn.xlValues, Excel.XlLookAt.xlPart,
+                            Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlNext, false, Type.Missing, Type.Missing);
+
+                        if (xlFind != null)
+                        {
+                            row = xlFind.Row;
+                            object val = props[i + 1].GetValue(value);
+                            xlCell = xlWs.Cells[row, col];
+                            xlCell.Value = val;
+                        }
+                    }
+
+                }
+
+                xlWb.SaveAs(excelFilePath.Remove(excelFilePath.LastIndexOf('.'), 4) + " - To Load.xls", Excel.XlFileFormat.xlExcel8);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            xlWb.Close();
+            xlApp.Quit();
+            return true;
         }
 
-        public static void SaveExcel(DataTable dataTable, string fileName)
+        public static void Save(DataTable dataTable, string fileName)
         {
             FormControl.SetStatus("Saving Excel File...");
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
@@ -242,6 +303,22 @@ namespace ArrowGlobal
             xlWb.SaveAs(fileName, Excel.XlFileFormat.xlExcel8);
             xlWb.Close();
             xlApp.Quit();
+        }
+
+        private static string GetExcelColumnName(int columnNumber)
+        {
+            int dividend = columnNumber;
+            string columnName = String.Empty;
+            int modulo;
+
+            while (dividend > 0)
+            {
+                modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return columnName;
         }
     }
     #endregion
@@ -356,6 +433,13 @@ namespace ArrowGlobal
             }
 
             return dataTable;
+        }
+
+        public static DataTable FromDatabase(SqlDataReader rdr)
+        {
+            DataTable table = new DataTable();
+            table.Load(rdr);
+            return table;
         }
 
         public static void SaveAsCsv(DataTable table, string fileName, string del = "|")
@@ -474,7 +558,7 @@ namespace ArrowGlobal
         private static double mainPercStep;
         private static SqlConnection conn = new SqlConnection(ConnString);
 
-        private static SqlDataReader Query(string query, out int count, Dictionary<string, object> parameters = null, bool nonQuery = false)
+        public static SqlDataReader Query(string query, out int count, Dictionary<string, object> parameters = null, bool nonQuery = false)
         {
             conn.Open();
 
@@ -635,6 +719,7 @@ namespace ArrowGlobal
     }
     #endregion
 
+    #region Configuration
     public static class Config
     {
         public static string Get(string key)
@@ -652,6 +737,7 @@ namespace ArrowGlobal
         }
 
     }
+    #endregion
 
     #region AES256 Encryption for local applications
     public static class AES256

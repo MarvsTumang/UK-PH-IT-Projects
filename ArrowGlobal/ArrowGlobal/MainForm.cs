@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -33,8 +34,49 @@ namespace ArrowGlobal
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Thread thread = new Thread(new ThreadStart(MainProcess));
-            thread.Start();
+            //Thread thread = new Thread(new ThreadStart(MainProcess));
+            //thread.Start();
+            //Supplemental();
+            LoadCheck();
+        }
+
+        private void ThirdParty()
+        {
+            
+        }
+
+        private void LoadCheck()
+        {
+            SqlDataReader rdr;
+            DataTable table;
+            int records = 0;
+
+            string supplemental = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Supplemental File Template.xls";
+            string query = Regex.Replace(File.ReadAllText(Config.Get("LoadCheck")), @"[\r\n\t ]+", " ");
+
+            string[] arrowKeys = ExcelFile.GetColumnData(supplemental, 1);
+
+            query = query.Replace("$Keys", String.Join(",", arrowKeys));
+             
+            rdr = Db.Query(query, out records);
+
+            table = Table.FromDatabase(rdr);
+
+            ExcelFile.Save(table, supplemental.Remove(supplemental.LastIndexOf('.'), 4) + " - To Load.xls");
+        }
+
+        private void Supplemental()
+        {
+            List<Account> accounts = new List<Account>();
+            string supplemental = @"C:\Users\mtumang\Documents\Projects\Arrow\TestData\Supplemental File Template.xls";
+            string query = Regex.Replace(File.ReadAllText(Config.Get("ArrowKeyFinder")), @"[\r\n\t ]+", " ");
+
+            string[] arrowKeys = ExcelFile.GetColumnData(supplemental, 1);
+            
+            query = query.Replace("$Keys", String.Join(",", arrowKeys));
+            accounts = Db.ToList<Account>(query);
+
+            ExcelFile.InsertColumn<Account>(supplemental, accounts, columns: new int[] { 2, 4 });
         }
 
         private void MainProcess()
@@ -143,7 +185,7 @@ namespace ArrowGlobal
 
             string excelFileName = textFile.Remove(textFile.LastIndexOf('.'), 4) + " - To Load.xls";
 
-            ExcelFile.SaveExcel(table, excelFileName);
+            ExcelFile.Save(table, excelFileName);
 
             Table.SaveAsCsv(table, excelFileName.Replace("xls", "csv"));
 

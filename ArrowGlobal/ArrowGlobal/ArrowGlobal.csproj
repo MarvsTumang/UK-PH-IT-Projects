@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Account.cs" />
     <Compile Include="CCLN.cs" />
     <Compile Include="Common.cs">
       <SubType>Component</SubType>
